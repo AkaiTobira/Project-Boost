@@ -6,22 +6,30 @@ public class Rocket : MonoBehaviour
 {
 
     Rigidbody rigidbody;
+    AudioSource audioSource;
 
     void Start()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        rigidbody   = GetComponent<Rigidbody>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
     {
-        ProcessInput();
+        ProcessThrust();
+        ProcessRotate();
     }
 
-    private void ProcessInput(){
-        
+    private void ProcessThrust(){
         if( Input.GetKey( KeyCode.Space )){
             rigidbody.AddRelativeForce(Vector3.up * 100 * Time.deltaTime);
+            if(!audioSource.isPlaying) audioSource.Play();
+        }else{
+            audioSource.Stop();
         }
+    }
+
+    private void ProcessRotate(){
         if( Input.GetKey( KeyCode.A )){
             transform.Rotate(Vector3.forward * 50 * Time.deltaTime);
 

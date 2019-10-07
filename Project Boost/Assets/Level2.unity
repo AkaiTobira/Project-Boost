@@ -1751,6 +1751,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rotationSpeed: 50
   thrustSpeed: 1000
+  mainEngine: {fileID: 8300000, guid: 6e41404e41143bf469e0590e28ac8b95, type: 3}
+  gameStart: {fileID: 8300000, guid: 5291a850271e3da4886075f758541f50, type: 3}
+  deadSound: {fileID: 8300000, guid: 789f3d74108a28940b2253be6a0b9803, type: 3}
+  deadParticle: {fileID: 198204746014789312, guid: ab79a37535b979f48b6de56e3a0a5cb0,
+    type: 3}
+  moveParticle: {fileID: 198100719057022332, guid: a3553fd250eb92d4091bebde350c6739,
+    type: 3}
+  finishParticle: {fileID: 198631066050499358, guid: 62198a3a5dbb64a4f9e1618929224faa,
+    type: 3}
 --- !u!82 &1860369221
 AudioSource:
   m_ObjectHideFlags: 0

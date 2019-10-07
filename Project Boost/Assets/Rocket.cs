@@ -6,11 +6,15 @@ using UnityEngine.SceneManagement;
 public class Rocket : MonoBehaviour
 {
 
-    [SerializeField] float rotationSpeed =  50f;
+    [SerializeField] float rotationSpeed =  75f;
     [SerializeField] float thrustSpeed   = 100f;
     [SerializeField] AudioClip mainEngine;
     [SerializeField] AudioClip gameStart;
     [SerializeField] AudioClip deadSound;
+
+    [SerializeField] ParticleSystem deadParticle;
+    [SerializeField] ParticleSystem moveParticle;
+    [SerializeField] ParticleSystem finishParticle;
 
     Rigidbody rigidbody;
     AudioSource audioSource;
@@ -45,6 +49,7 @@ public class Rocket : MonoBehaviour
         rigidbody.AddRelativeForce(Vector3.up * thrustSpeed * Time.deltaTime);
         if(!audioSource.isPlaying) audioSource.PlayOneShot(mainEngine);
         rigidbody.freezeRotation = true;
+        moveParticle.Play();
     }
 
 
@@ -63,6 +68,8 @@ public class Rocket : MonoBehaviour
 
     private void OnDefaultCollision(){
         status = State.Dead;
+        moveParticle.Stop();
+        deadParticle.Play();
         StartCoroutine(LoadNextLevel(0, 2.5f));
         audioSource.Stop();
         audioSource.PlayOneShot(deadSound);
@@ -70,6 +77,8 @@ public class Rocket : MonoBehaviour
 
     private void OnFinishCollision(){
         status = State.Transcent;
+        moveParticle.Stop();
+        finishParticle.Play();
         StartCoroutine(LoadNextLevel(1, 2f));
         audioSource.Stop();
         audioSource.PlayOneShot(gameStart);

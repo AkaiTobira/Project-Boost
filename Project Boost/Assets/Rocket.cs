@@ -11,6 +11,8 @@ public class Rocket : MonoBehaviour
     Rigidbody rigidbody;
     AudioSource audioSource;
 
+    enum State { Alive, Dead, Transcent };
+    State status = State.Alive;
 
     void Start()
     {
@@ -20,9 +22,17 @@ public class Rocket : MonoBehaviour
 
     void Update()
     {
-        ProcessThrust();
-        ProcessRotate();
+        if( status == State.Alive ){
+            ProcessThrust();
+            ProcessRotate();
+        }else{
+            rigidbody.freezeRotation = false;
+        }
     }
+
+
+
+
 
     private void ProcessThrust(){
         if( Input.GetKey( KeyCode.Space )){
@@ -35,18 +45,29 @@ public class Rocket : MonoBehaviour
     }
 
     void OnCollisionEnter(Collision other) {
+
+        if( status != State.Alive ) return;
+
         switch( other.gameObject.tag ){
             case "Friendly": break;
             case "Finish":
-                SceneManager.LoadScene(1);
-                //print( "Finished");
+                StartCoroutine(LoadNextLevel(1, 0f));
+    //            SceneManager.LoadScene(1);
             break;
             default:
-                SceneManager.LoadScene(0);
+                status = State.Dead;
+                StartCoroutine(LoadNextLevel(0, 5f));
+    //            SceneManager.LoadScene(0);
             break;
         }
 
     }
+
+    IEnumerator LoadNextLevel( int level, float delayTime ){
+        yield return new WaitForSeconds(delayTime);
+        SceneManager.LoadScene(level);
+    }
+
 
     private void ProcessRotate(){
 

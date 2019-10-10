@@ -8,6 +8,7 @@ public class Rocket : MonoBehaviour
 
     [SerializeField] float rotationSpeed =  75f;
     [SerializeField] float thrustSpeed   = 100f;
+    [SerializeField] float loadLevelTime = 2.5f;
     [SerializeField] AudioClip mainEngine;
     [SerializeField] AudioClip gameStart;
     [SerializeField] AudioClip deadSound;
@@ -18,6 +19,7 @@ public class Rocket : MonoBehaviour
 
     Rigidbody rigidbody;
     AudioSource audioSource;
+    bool collisionEnable = true;
 
     enum State { Alive, Dead, Transcent };
     State status = State.Alive;
@@ -32,9 +34,24 @@ public class Rocket : MonoBehaviour
         if( status == State.Alive ){
             ProcessThrust();
             ProcessRotate();
+            if( Debug.isDebugBuild ) ProcessCheat();
         }else{
             rigidbody.freezeRotation = false;
         }
+    }
+
+    private void ProcessCheat(){
+        if( Input.GetKey( KeyCode.L ) ){
+            LoadNextLevel(0);
+        }else if( Input.GetKeyDown( KeyCode.C ) ){
+            collisionEnable = !collisionEnable;
+        }
+    }
+
+    private void LoadNextLevel( float time){
+            int loadIndex = SceneManager.GetActiveScene().buildIndex + 1;
+            if(loadIndex == SceneManager.sceneCountInBuildSettings) loadIndex = 0;
+            StartCoroutine(WaitForNextLevel(loadIndex,time));
     }
 
     private void ProcessThrust(){
@@ -43,13 +60,18 @@ public class Rocket : MonoBehaviour
         }else{
             audioSource.Stop();
         }
+        if( Input.GetKeyUp( KeyCode.Space )){
+            moveParticle.Stop();
+        }
+        if( Input.GetKeyDown( KeyCode.Space )){
+            moveParticle.Play();
+        }
     }
 
     private void ApplyThrust(){
         rigidbody.AddRelativeForce(Vector3.up * thrustSpeed * Time.deltaTime);
         if(!audioSource.isPlaying) audioSource.PlayOneShot(mainEngine);
         rigidbody.freezeRotation = true;
-        moveParticle.Play();
     }
 
 
@@ -61,7 +83,7 @@ public class Rocket : MonoBehaviour
                 OnFinishCollision();
             break;
             default: 
-                OnDefaultCollision();
+                if( collisionEnable ) OnDefaultCollision();
             break;
         }
     }
@@ -70,7 +92,9 @@ public class Rocket : MonoBehaviour
         status = State.Dead;
         moveParticle.Stop();
         deadParticle.Play();
-        StartCoroutine(LoadNextLevel(0, 2.5f));
+        
+        StartCoroutine(WaitForNextLevel(SceneManager.GetActiveScene().buildIndex, loadLevelTime));
+        
         audioSource.Stop();
         audioSource.PlayOneShot(deadSound);
     }
@@ -79,21 +103,21 @@ public class Rocket : MonoBehaviour
         status = State.Transcent;
         moveParticle.Stop();
         finishParticle.Play();
-        StartCoroutine(LoadNextLevel(1, 2f));
+        LoadNextLevel(loadLevelTime);
         audioSource.Stop();
         audioSource.PlayOneShot(gameStart);
     }
 
-    IEnumerator LoadNextLevel( int level, float delayTime ){
+    IEnumerator WaitForNextLevel( int level, float delayTime ){
         yield return new WaitForSeconds(delayTime);
         SceneManager.LoadScene(level);
     }
 
     private void ProcessRotate(){
         rigidbody.freezeRotation = false;
-        if( Input.GetKey( KeyCode.A )){
+        if( Input.GetKey( KeyCode.A )|| Input.GetKey("left")){
             transform.Rotate( Vector3.forward * rotationSpeed * Time.deltaTime);
-        } else if( Input.GetKey( KeyCode.D )){
+        } else if( Input.GetKey( KeyCode.D ) || Input.GetKey("right")){
             transform.Rotate(-Vector3.forward * rotationSpeed * Time.deltaTime);
         }
         rigidbody.freezeRotation = true;

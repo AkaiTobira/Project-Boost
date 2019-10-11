@@ -41,7 +41,7 @@ public class Rocket : MonoBehaviour
     }
 
     private void ProcessCheat(){
-        if( Input.GetKey( KeyCode.L ) ){
+        if( Input.GetKeyDown( KeyCode.L ) ){
             LoadNextLevel(0);
         }else if( Input.GetKeyDown( KeyCode.C ) ){
             collisionEnable = !collisionEnable;
